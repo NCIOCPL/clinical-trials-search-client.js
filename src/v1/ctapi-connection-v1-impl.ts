@@ -21,17 +21,24 @@ export class CTAPIConnectionV1Impl implements CTAPIConnection {
     configuration.getConfiguration();
   }
 
-  getRequest(path: string, params: any): Promise<any> {
+  async getRequest(path: string, params: any): Promise<any> {
     let port: string = this.port ? `:${this.port}` : "";
     let reqURL: string = `${this.protocol}://${this.hostname}${port}/v1${path}`;
 
-    return axios
+    const res: AxiosResponse = await axios
       .get(reqURL, {
         params: params
-      })
-      .then((res: AxiosResponse) => {
-        // TODO: check http response code
-        return res.data;
       });
+    return res.data;
+  }
+
+  async postRequest(path: string, body: any): Promise<any> {
+    let port: string = this.port ? `:${this.port}` : "";
+    let reqURL: string = `${this.protocol}://${this.hostname}${port}/v1${path}`;
+
+    const res: AxiosResponse = await axios
+      .post(reqURL, body);
+
+    return res.data;
   }
 }

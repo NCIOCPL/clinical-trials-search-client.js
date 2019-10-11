@@ -1,4 +1,4 @@
-import {TermResults, InterventionResults, DiseaseResults } from '../model';
+import { TermResults, InterventionResults, DiseaseResults, ClinicaltrialResults, ClinicaltrialResult } from '../model';
 import {CTAPIConnection} from '../ctapi-connection';
 import {ClinicalTrialsService} from '../clinical-trials-service';
 
@@ -29,7 +29,7 @@ export class ClinicalTrialsServiceV1Impl implements ClinicalTrialsService {
      * @param size The number of terms to return. NOTE: API allows max of 100 (DEFAULT: 10)
      * @param from The 0-based offset of where to start fetching terms from. (DEFAULT: 0)
      */
-    getTerms(termType: string, additionalParams = {}, size = 10, from = 0): Promise<TermResults> {
+    async getTerms(termType: string, additionalParams = {}, size = 10, from = 0): Promise<TermResults> {
 
         //Setup the request
         let params = {
@@ -46,13 +46,13 @@ export class ClinicalTrialsServiceV1Impl implements ClinicalTrialsService {
 
         //Setup additional params for Viewable.
 
-        return this.connection.getRequest(
+        const resJSON = await this.connection.getRequest(
                 '/terms',
                 requestParams
-            )
-            .then((resJSON: any) => {
-                return TermResults.fromJSON(resJSON);
-            })
+            );
+
+        
+        return TermResults.fromJSON(resJSON);
     }
 
     /**
@@ -65,7 +65,7 @@ export class ClinicalTrialsServiceV1Impl implements ClinicalTrialsService {
      * @param sort The sort order of the results (DEFAULT: Name)
      * @param order The direction to sort the results (DEFAULT: asc)
      */    
-    getInterventions(category?: string|string[], name?: string, size = 10 , additionalParams?:any, sort = "name", order = "asc"): Promise<InterventionResults> {
+    async getInterventions(category?: string|string[], name?: string, size = 10 , additionalParams?:any, sort = "name", order = "asc"): Promise<InterventionResults> {
 
         //Setup the request
         let params = {
@@ -86,13 +86,11 @@ export class ClinicalTrialsServiceV1Impl implements ClinicalTrialsService {
 
         //Setup additional params for Viewable.
 
-        return this.connection.getRequest(
+        const resJSON = await this.connection.getRequest(
                 '/interventions',
                 requestParams
             )
-            .then((resJSON: any) => {
-                return InterventionResults.fromJSON(resJSON);
-            })
+        return InterventionResults.fromJSON(resJSON);
     }
 
     /**
@@ -104,7 +102,7 @@ export class ClinicalTrialsServiceV1Impl implements ClinicalTrialsService {
      * @returns {Promise<DiseaseResults>} 
      * @memberof ClinicalTrialsService
      */
-    getDiseases(menuType:string|string[], diseaseAncestorIDs?:string|string[], additionalParams?:any): Promise<DiseaseResults> {
+    async getDiseases(menuType:string|string[], diseaseAncestorIDs?:string|string[], additionalParams?:any): Promise<DiseaseResults> {
         
         //Setup the request
         let params = {
@@ -117,14 +115,25 @@ export class ClinicalTrialsServiceV1Impl implements ClinicalTrialsService {
 
         let requestParams = Object.assign({}, additionalParams, params);
 
-        return this.connection.getRequest(
+        const resJSON = await this.connection.getRequest(
             '/diseases',
             requestParams
-        )
-        .then((resJSON: any) => {
-            return DiseaseResults.fromJSON(resJSON);
-        })
+        );
+        return DiseaseResults.fromJSON(resJSON);
     }
 
-}
 
+    /**
+     * Gets the set of trials matching a set of search criteria.
+     * 
+     * @param {string} document JSON document containing a set of search criteria.
+     * @returns {Promise<ClinicaltrialResults>}
+     */
+    async searchTrials(document: string): Promise<ClinicaltrialResults> {
+        const resJSON = await this.connection.postRequest(
+            '/clinical-trials',
+            document
+        );
+        return ClinicaltrialResults.fromJSON(resJSON);
+    }
+}

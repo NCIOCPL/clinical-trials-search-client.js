@@ -5,5 +5,5 @@
 export interface CTAPIConnection {
 
     getRequest(path:string, params: any): Promise<any>
-
+    postRequest(path:string, document:string): Promise<any>
 }

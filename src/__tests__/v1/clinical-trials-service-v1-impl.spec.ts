@@ -1,9 +1,32 @@
 import * as TypeMoq from "typemoq";
+import nock from 'nock';
+import path from 'path';
 
 import { CTAPIConnection } from "../../ctapi-connection";
 import { TermResult } from "../../model/term-result";
 import { TermResults } from "../../model/term-results";
 import { ClinicalTrialsServiceV1Impl } from "../../v1/clinical-trials-service-v1-impl";
+import { ClinicalTrialsService } from '../../clinical-trials-service';
+import { CTAPIConnectionV1Impl } from "../../v1";
+import { forOfStatement } from "@babel/types";
+import { ClinicaltrialResults } from "../../model/clinicaltrial-results";
+
+// Begin test fixture methods.
+
+beforeAll(() => {
+  nock.disableNetConnect();
+});
+
+//After each test, cleanup any remaining mocks
+afterEach(() => {
+  nock.cleanAll();
+});
+
+afterAll(() => {
+  nock.enableNetConnect();
+});
+
+// End test fixture methods.
 
 interface MockServiceTermTest {
   getExpected(): TermResults;
@@ -86,6 +109,13 @@ class MockCTAPIConnection implements CTAPIConnection {
   constructor() {}
 
   getRequest(path: string, params: any): Promise<any> {
+    return Promise.resolve({
+      total: 0,
+      terms: []
+    });
+  }
+
+  postRequest(path:string, document:string): Promise<any> {
     return Promise.resolve({
       total: 0,
       terms: []
@@ -195,6 +225,33 @@ describe("Services.ClinicalTrials.ClinicalTrialsService", () => {
   describe("getInterventions", () => {
     it("should have unit tests", () => {
       expect(true).toBe(true);
+    });
+  });
+
+  describe("searchTrials", () => {
+    it("should get a list of trials.", async () => {
+
+      const MATCH_REQUEST = '{"nci_id": "NCI-2015-00054"}';
+
+      const api_scope = nock('https://clinicaltrialsapi.cancer.gov');
+
+      api_scope.post('/v1/clinical-trials', MATCH_REQUEST)
+      .replyWithFile(
+        200,
+        path.join(__dirname, '.', 'data', 'single_trial_response.json'),
+        { 'Content-Type': 'application/json' }
+      );
+
+      let conn: CTAPIConnectionV1Impl = new CTAPIConnectionV1Impl('https', 'clinicaltrialsapi.cancer.gov');
+      const svc: ClinicalTrialsService = <ClinicalTrialsService>new ClinicalTrialsServiceV1Impl(conn);
+
+      const trialList: ClinicaltrialResults = await svc.searchTrials(MATCH_REQUEST);
+
+      expect(trialList.total).toBe(1);
+      expect(trialList.trials[0].nciID).toBe('NCI-2015-00054');
+
+      expect(2).toBe(2); 
+
     });
   });
 });

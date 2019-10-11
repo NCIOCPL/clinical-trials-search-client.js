@@ -1,4 +1,4 @@
-import { TermResults, InterventionResults, DiseaseResults } from './model';
+import { TermResults, InterventionResults, DiseaseResults, ClinicaltrialResults, ClinicaltrialResult } from './model';
 
 /**
  * This class represents the methods to accessing a CTAPI service
@@ -39,5 +39,12 @@ export interface ClinicalTrialsService {
      */
     getDiseases(menuType:string|string[], diseaseAncestorIDs?:string | string[], additionalParams?:any): Promise<DiseaseResults>;
 
+    /**
+     * Gets the set of trials matching a set of search criteria.
+     * 
+     * @param {string} document JSON document containing a set of search criteria.
+     * @returns {Promise<ClinicaltrialResults>}
+     */
+    searchTrials(document: string): Promise<ClinicaltrialResults>;
 }
 
