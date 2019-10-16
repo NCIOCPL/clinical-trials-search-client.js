@@ -10,15 +10,15 @@ describe('Services.ClinicalTrials.Model.DiseaseResult', () => {
                     "name": "Breast Cancer",
                     "parent_disease_id": null,
                     "codes": ["C12345"],
-                    "menu": "disease"
+                    "type": ["disease"]
                 }        
             `;
 
             let expected: DiseaseResult = new DiseaseResult();
             expected.name = 'Breast Cancer';
-            expected.parentDiseaseID = undefined;
+            expected.parentDiseaseID = [];
             expected.codes = [ "C12345" ];
-            expected.menu = "disease";
+            expected.type = ["disease"];
 
             let actual: DiseaseResult = DiseaseResult.fromJSON(s);
             
@@ -32,14 +32,14 @@ describe('Services.ClinicalTrials.Model.DiseaseResult', () => {
                 "name": "Breast Cancer",
                 "parent_disease_id": null,
                 "codes": ["C12345"],
-                "menu": "disease"
+                "type": ["disease"]
             };
 
             let expected: DiseaseResult = new DiseaseResult();
             expected.name = 'Breast Cancer';
-            expected.parentDiseaseID = undefined;
+            expected.parentDiseaseID = [];
             expected.codes = [ "C12345" ];
-            expected.menu = "disease";
+            expected.type = ["disease"];
 
             let actual: DiseaseResult = DiseaseResult.fromJSON(obj);
 

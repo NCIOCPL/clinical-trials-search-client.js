@@ -12,7 +12,7 @@ describe("Services.ClinicalTrials.Model.DiseaseResults", () => {
                             "name": "Breast Cancer",
                             "parent_disease_id": null,
                             "codes": ["C12345"],
-                            "menu": "disease"
+                            "type": ["disease"]
                         }
                     ]
                 }
@@ -22,9 +22,9 @@ describe("Services.ClinicalTrials.Model.DiseaseResults", () => {
       let expectedTerm: DiseaseResult = new DiseaseResult();
 
       expectedTerm.name = "Breast Cancer";
-      expectedTerm.parentDiseaseID = undefined;
+      expectedTerm.parentDiseaseID = [];
       expectedTerm.codes = ["C12345"];
-      expectedTerm.menu = "disease";
+      expectedTerm.type = ["disease"];
 
       expected.total = 500;
       expected.terms = <Array<DiseaseResult>>[expectedTerm];
@@ -46,7 +46,7 @@ describe("Services.ClinicalTrials.Model.DiseaseResults", () => {
             name: "Breast Cancer",
             parent_disease_id: null,
             codes: ["C12345"],
-            menu: "disease"
+            type: ["disease"]
           }
         ]
       };
@@ -55,9 +55,9 @@ describe("Services.ClinicalTrials.Model.DiseaseResults", () => {
       let expectedTerm: DiseaseResult = new DiseaseResult();
 
       expectedTerm.name = "Breast Cancer";
-      expectedTerm.parentDiseaseID = undefined;
+      expectedTerm.parentDiseaseID = [];
       expectedTerm.codes = ["C12345"];
-      expectedTerm.menu = "disease";
+      expectedTerm.type = ["disease"];
 
       expected.total = 500;
       expected.terms = <Array<DiseaseResult>>[expectedTerm];

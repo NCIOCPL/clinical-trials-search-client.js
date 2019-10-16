@@ -17,19 +17,19 @@ export class DiseaseResult {
     /**
      * Parent disease ID of this menu item. Null if top level menu item.
      */
-    parentDiseaseID: string
+    parentDiseaseID: string[]
 
     /**
      * The menu this disease is in --
      * can be "disease", "stage", or "finding".
      */
-    menu: string;
+    type: string[];
 
     constructor() {
         this.name = undefined;
         this.codes = [];
-        this.parentDiseaseID = undefined;
-        this.menu = undefined;
+        this.parentDiseaseID = [];
+        this.type = [];
     }
 
     static fromJSON(json: any) : DiseaseResult {
@@ -44,8 +44,8 @@ export class DiseaseResult {
                 switch(key) {
                     case "name" : rtnDisease.name = json[key]; break;
                     case "codes" : rtnDisease.codes = json[key]; break;
-                    case "disease_parent_id" : rtnDisease.parentDiseaseID = json[key]; break;
-                    case "menu" : rtnDisease.menu = json[key]; break;
+                    case "parent_ids" : rtnDisease.parentDiseaseID = json[key]; break;
+                    case "type" : rtnDisease.type = json[key]; break;
                 }
             })
 
