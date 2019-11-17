@@ -7,7 +7,7 @@ import { GeoLocation } from "../../model/clinicaltrial-result";
 
 describe("Services.ClinicalTrials.Model.GeoLocation", () => {
     describe("isWithinRadius", () => {
-        it("'Should find identical locations are within the radius.", () => {
+        it("Should find identical locations are within the radius.", () => {
             
             const point: GeoLocation = new GeoLocation();
             point.latitude = 41.8204;

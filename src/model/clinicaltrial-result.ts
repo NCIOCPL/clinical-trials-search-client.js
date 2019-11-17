@@ -88,7 +88,31 @@ export class ClinicaltrialResult {
     this.principalInvestigator = null;
     this.centralContact = null;
     this.sites = null;
+  }
 
+  /**
+   * Gets a list of of study sites within distance miles of the
+   * point described by the latitude and longitude.
+   * @param latitude Latitude, expressed in degrees.
+   * @param longitude Longitude, expressed in degrees.
+   * @param distance Maximum distance in miles from this Geolocation.
+   * @returns An array of StudySite objects. If no sites meet the criteria,
+   *          an empty array is returned.
+   */
+  filterSitesByGeolocation(latitude: number, longitude: number, distance: number): StudySite[] {
+
+    let result: StudySite[] = [];
+
+    let foo = <StudySite> this.sites[0];
+
+    this.sites.forEach(site => {
+
+    if (site.coordinates.isWithinRadius(latitude, longitude, distance)) {
+        result.push(site);
+      }
+    });
+
+    return result;
   }
 
   static fromJSON(json: any): ClinicaltrialResult {
