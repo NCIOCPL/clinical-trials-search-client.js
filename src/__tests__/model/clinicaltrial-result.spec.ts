@@ -1,4 +1,4 @@
-import { ClinicaltrialResult, EligibilityInformation, GeoLocation } from "../../model/clinicaltrial-result";
+import { ClinicaltrialResult, EligibilityInformation, GeoLocation, StudySite } from "../../model/clinicaltrial-result";
 
 describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
     describe("fromJSON", () => {
@@ -580,12 +580,12 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
             "central_contact": {
                 "central_contact_email": "TEST@TEST.TEST.TEST",
                 "central_contact_name": "A central contact",
-                "central_contact_phone": 
+                "central_contact_phone":
                     {
                         "This":"should",
                         "accomodate":"objects"
                     },
-                "central_contact_type": 
+                "central_contact_type":
                     {
                         "This":"should",
                         "accomodate":"them too"
@@ -1163,4 +1163,270 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
             expect(actual).toEqual(expected);
         });
     });
+
+    describe("FilterSitesByGeolocation", () => {
+
+        let getTestData = function():ClinicaltrialResult {
+
+            let trial = new ClinicaltrialResult();
+            trial.nciID = "NCI-2015-00054";
+            trial.nctID = "NCT02465060";
+            trial.protocolID = "EAY131";
+            trial.sites = [
+                // NIH Clinical Center
+                {
+                    addressLine1: "10 Center Drive",
+                    addressLine2: null,
+                    postalCode: "20892",
+                    coordinates: null,
+                    city: "Bethesda",
+                    stateOrProvinceAbbreviation: "MD",
+                    country: "United States",
+                    isVA: false,
+                    name: "National Institutes of Health Clinical Center",
+                    family: "NCI Center for Cancer Research (CCR)",
+                    orgToFamilyRelationship: "ORGANIZATIONAL",
+                    orgEmail: null,
+                    orgFax: null,
+                    orgPhone: "800-411-1222",
+                    orgTty: null,
+                    contactEmail: null,
+                    contactName: "Site Public Contact",
+                    contactPhone: "800-411-1222",
+                    recruitmentStatus: "ACTIVE",
+                    localSiteIdentifier: ""
+                },
+                // Kaiser Permanente-San Francisco
+                {
+                    addressLine1: "2425 Geary Boulevard",
+                    addressLine2: null,
+                    postalCode: "94115",
+                    coordinates: null,
+                    city: "San Francisco",
+                    stateOrProvinceAbbreviation: "CA",
+                    country: "United States",
+                    isVA: false,
+                    name: "Kaiser Permanente-San Francisco",
+                    family: null,
+                    orgToFamilyRelationship: null,
+                    orgEmail: null,
+                    orgFax: null,
+                    orgPhone: "500-891-3400",
+                    orgTty: null,
+                    contactEmail: null,
+                    contactName: "Site Public Contact",
+                    contactPhone: "510-891-3400",
+                    recruitmentStatus: "ACTIVE",
+                    localSiteIdentifier: ""
+                },
+                // Yale-New Haven Hospital
+                {
+                    addressLine1: "20 York Street",
+                    addressLine2: null,
+                    postalCode: "06510",
+                    coordinates: null,
+                    city: "New Haven",
+                    stateOrProvinceAbbreviation: "CT",
+                    country: "United States",
+                    isVA: false,
+                    name: "Smilow Cancer Center / Yale-New Haven Hospital",
+                    family: "Yale Cancer Center",
+                    orgToFamilyRelationship: "ORGANIZATIONAL",
+                    orgEmail: null,
+                    orgFax: null,
+                    orgPhone: "203-688-4242",
+                    orgTty: null,
+                    contactEmail: null,
+                    contactName: "Site Public Contact",
+                    contactPhone: "203-785-5702",
+                    recruitmentStatus: "ACTIVE",
+                    localSiteIdentifier: ""
+                }
+            ];
+            // NIH Clinical Center
+            trial.sites[0].coordinates = new GeoLocation();
+            trial.sites[0].coordinates.latitude = 39.0003;
+            trial.sites[0].coordinates.longitude = -77.1056;
+            // Kaiser Permanente-San Francisco
+            trial.sites[1].coordinates = new GeoLocation();
+            trial.sites[1].coordinates.latitude = 37.7858;
+            trial.sites[1].coordinates.longitude = -122.4376;
+            // Yale-New Haven Hospital
+            trial.sites[2].coordinates = new GeoLocation();
+            trial.sites[2].coordinates.latitude = 41.3068;
+            trial.sites[2].coordinates.longitude = -72.9252;
+
+            return trial;
+        }
+
+        // First item on list
+        it("Should find only the NIH clinical center within a mile of itself", () => {
+
+            // Clinical center location
+            const latitude = 39.0003;
+            const longitude = -77.1056;
+            
+            const expected: StudySite[] = [
+                {
+                    addressLine1: "10 Center Drive",
+                    addressLine2: null,
+                    postalCode: "20892",
+                    coordinates: null,
+                    city: "Bethesda",
+                    stateOrProvinceAbbreviation: "MD",
+                    country: "United States",
+                    isVA: false,
+                    name: "National Institutes of Health Clinical Center",
+                    family: "NCI Center for Cancer Research (CCR)",
+                    orgToFamilyRelationship: "ORGANIZATIONAL",
+                    orgEmail: null,
+                    orgFax: null,
+                    orgPhone: "800-411-1222",
+                    orgTty: null,
+                    contactEmail: null,
+                    contactName: "Site Public Contact",
+                    contactPhone: "800-411-1222",
+                    recruitmentStatus: "ACTIVE",
+                    localSiteIdentifier: ""
+                }
+            ];
+            expected[0].coordinates = new GeoLocation();
+            expected[0].coordinates.latitude = 39.0003;
+            expected[0].coordinates.longitude = -77.1056;
+            
+            const testData = getTestData();
+            
+
+            const actual: StudySite[] = testData.filterSitesByGeolocation(latitude, longitude, 1);
+
+            // Expect match, but not the same actual object.
+            expect(actual).toEqual(expected);
+        });
+
+        // Last item on list
+        it("Should find Yale-New Haven Hospital within 20 miles of New Haven", () => {
+
+            // New Haven
+            const latitude = 41.2983476;
+            const longitude = -72.9642011;
+
+            const expected: StudySite[] = [
+                {
+                    addressLine1: "20 York Street",
+                    addressLine2: null,
+                    postalCode: "06510",
+                    coordinates: null,
+                    city: "New Haven",
+                    stateOrProvinceAbbreviation: "CT",
+                    country: "United States",
+                    isVA: false,
+                    name: "Smilow Cancer Center / Yale-New Haven Hospital",
+                    family: "Yale Cancer Center",
+                    orgToFamilyRelationship: "ORGANIZATIONAL",
+                    orgEmail: null,
+                    orgFax: null,
+                    orgPhone: "203-688-4242",
+                    orgTty: null,
+                    contactEmail: null,
+                    contactName: "Site Public Contact",
+                    contactPhone: "203-785-5702",
+                    recruitmentStatus: "ACTIVE",
+                    localSiteIdentifier: ""
+                }
+            ];
+            expected[0].coordinates = new GeoLocation();
+            expected[0].coordinates.latitude = 41.3068;
+            expected[0].coordinates.longitude = -72.9252;
+
+            const testData = getTestData();
+
+            const actual: StudySite[] = testData.filterSitesByGeolocation(latitude, longitude, 20);
+
+            // Equal value, but not the same object.
+            expect(actual).toEqual(expected);
+        });
+
+
+        it("Should find the NIH clinical center and Yale-New Haven Hospital within 500 miles of Bethesda", () => {
+
+            // Bethesda
+            const latitude = 38.9830367;
+            const longitude = -77.136558;
+
+            const expected: StudySite[] = [
+                {
+                    addressLine1: "10 Center Drive",
+                    addressLine2: null,
+                    postalCode: "20892",
+                    coordinates: null,
+                    city: "Bethesda",
+                    stateOrProvinceAbbreviation: "MD",
+                    country: "United States",
+                    isVA: false,
+                    name: "National Institutes of Health Clinical Center",
+                    family: "NCI Center for Cancer Research (CCR)",
+                    orgToFamilyRelationship: "ORGANIZATIONAL",
+                    orgEmail: null,
+                    orgFax: null,
+                    orgPhone: "800-411-1222",
+                    orgTty: null,
+                    contactEmail: null,
+                    contactName: "Site Public Contact",
+                    contactPhone: "800-411-1222",
+                    recruitmentStatus: "ACTIVE",
+                    localSiteIdentifier: ""
+                },
+                {
+                    addressLine1: "20 York Street",
+                    addressLine2: null,
+                    postalCode: "06510",
+                    coordinates: null,
+                    city: "New Haven",
+                    stateOrProvinceAbbreviation: "CT",
+                    country: "United States",
+                    isVA: false,
+                    name: "Smilow Cancer Center / Yale-New Haven Hospital",
+                    family: "Yale Cancer Center",
+                    orgToFamilyRelationship: "ORGANIZATIONAL",
+                    orgEmail: null,
+                    orgFax: null,
+                    orgPhone: "203-688-4242",
+                    orgTty: null,
+                    contactEmail: null,
+                    contactName: "Site Public Contact",
+                    contactPhone: "203-785-5702",
+                    recruitmentStatus: "ACTIVE",
+                    localSiteIdentifier: ""
+                }
+            ];
+            expected[0].coordinates = new GeoLocation();
+            expected[0].coordinates.latitude = 39.0003;
+            expected[0].coordinates.longitude = -77.1056;
+            expected[1].coordinates = new GeoLocation();
+            expected[1].coordinates.latitude = 41.3068;
+            expected[1].coordinates.longitude = -72.9252;
+
+            const testData = getTestData();
+
+            const actual: StudySite[] = testData.filterSitesByGeolocation(latitude, longitude, 500);
+
+            expect(actual).toEqual(expected);
+        });
+
+        it("Should find 0 trials within 20 miles of Barcelona", () => {
+
+            // Barcelona
+            const latitude = 41.3948975;
+            const longitude = 2.0785564;
+
+            const expected: StudySite[] = [];
+
+            const testData = getTestData();
+
+            const actual: StudySite[] = testData.filterSitesByGeolocation(latitude, longitude, 500);
+
+            expect(actual).toEqual(expected);
+        });
+    });
+
 });
