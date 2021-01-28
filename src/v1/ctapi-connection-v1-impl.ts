@@ -1,7 +1,6 @@
 import { CTAPIConnection } from "../ctapi-connection";
 import axios from "axios";
 import { AxiosResponse } from "axios";
-import { CDERuntimeConfig } from "../cde-configuration-service";
 
 /**
  * Interface for clinical trials v1 API connections
@@ -21,10 +20,6 @@ export class CTAPIConnectionV1Impl implements CTAPIConnection {
     this.protocol = protocol;
     this.hostname = hostname;
     this.port = port;
-
-    // Retrieve configuration data for current runtime environment.
-    let configuration = new CDERuntimeConfig();
-    configuration.getConfiguration();
   }
 
   async getRequest(path: string, params: any, headers?: any): Promise<any> {
